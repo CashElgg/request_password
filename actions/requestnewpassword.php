@@ -21,6 +21,6 @@
   else
     register_error(sprintf(elgg_echo('user:email:notfound'), $email));
   
-  forward($_SERVER['HTTP_REFERER']);
+  forward();
   exit;
 ?>
