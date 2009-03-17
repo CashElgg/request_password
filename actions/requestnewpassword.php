@@ -13,10 +13,23 @@
     
   if ($user)
   {
-    if (send_new_password_request($user->guid))
-      system_message(elgg_echo('user:password:resetreq:success'));
+    if ($user->validated) 
+    {
+      if (send_new_password_request($user->guid))
+        system_message(elgg_echo('user:password:resetreq:success'));
+      else
+        register_error(elgg_echo('user:password:resetreq:fail'));
+    }
     else
-      register_error(elgg_echo('user:password:resetreq:fail')); 
+    {
+      if (!trigger_plugin_hook('unvalidated_requestnewpassword', 'user', array('entity'=>$user))) 
+      {
+        // if plugins have not registered an action, the default action is to
+        // trigger the validation event again and assume that the validation
+        // event will display an appropriate message
+        trigger_elgg_event('validate', 'user', $user);
+      }    
+    } 
   }
   else
     register_error(sprintf(elgg_echo('user:email:notfound'), $email));
